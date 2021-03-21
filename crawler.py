@@ -18,7 +18,6 @@ driver.implicitly_wait(5)
 
 #click login button
 login_page_link = driver.find_element_by_id('menu-item-647').find_element_by_tag_name('a')
-print(login_page_link.get_attribute('text'))
 login_page_link.click()
 
 #enter login information
@@ -31,3 +30,18 @@ password_input.send_keys(password)
 driver.implicitly_wait(3)
 login_button = driver.find_element_by_id('ctl00_pageContentHolder_loginControl_Login')
 login_button.click()
+
+#click on reservation box
+driver.implicitly_wait(3)
+reservation_box = driver.find_element_by_id('menu_SCH')
+reservation_box.click()
+
+#click on Fitness Reservations box
+driver.implicitly_wait(3)
+fitness_reservation_box = driver.find_element_by_xpath('//div[@title="Fitness Reservations"]')
+fitness_reservation_box.click()
+
+#directed to new page with a single Fitness Reservations box -- need to click time as well
+driver.implicitly_wait(3)
+fitness_reservation_box = driver.find_element_by_xpath('//div[@title="Fitness Reservations"]')
+fitness_reservation_box.click()
