@@ -1,7 +1,9 @@
-from selenium import webdriver
 import time
+import datetime
 import os
 
+from selenium import webdriver
+from datetime import timedelta
 from os.path import join, dirname
 from dotenv import load_dotenv
 
@@ -45,3 +47,16 @@ fitness_reservation_box.click()
 driver.implicitly_wait(3)
 fitness_reservation_box = driver.find_element_by_xpath('//div[@title="Fitness Reservations"]')
 fitness_reservation_box.click()
+
+#select the next day on the popup
+driver.implicitly_wait(3)
+calendar_img = driver.find_element_by_xpath('//img[@class="ui-datepicker-trigger"]')
+calendar_img.click()
+reservation_day = datetime.date.today() + timedelta(days=1)
+month = reservation_day.month - 1
+
+day_of_week = reservation_day.ctime().split()[0]
+print(month)
+
+#continue_popup_button = driver.find_element_by_id('btnContinue')
+#continue_popup_button.click()
