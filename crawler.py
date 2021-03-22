@@ -51,13 +51,32 @@ fitness_reservation_box.click()
 
 #select the next day on the popup
 driver.implicitly_wait(3)
+def get_reservation_day():
+    reservation_day = datetime.date.today() + timedelta(days=1)
+    day = reservation_day.day
+    [day_of_week, month] = reservation_day.ctime().split()[:2]
+    return ('Mar', day, day_of_week)
+
 calendar_img = driver.find_element_by_xpath('//img[@class="ui-datepicker-trigger"]')
 calendar_img.click()
-reservation_day = datetime.date.today() + timedelta(days=1)
-month = reservation_day.month - 1
 
-day_of_week = reservation_day.ctime().split()[0]
-print(month)
+(month, day, day_of_week) = get_reservation_day()
 
-#continue_popup_button = driver.find_element_by_id('btnContinue')
-#continue_popup_button.click()
+month_dropdown = driver.find_element_by_xpath('//select[@class="ui-datepicker-month"]')
+month_dropdown.click()
+
+for option in month_dropdown.find_elements_by_tag_name('option'):
+    if option.text == month:
+        option.click()
+
+month_dropdown.click()
+
+calendar = driver.find_element_by_xpath('//table[@class="ui-datepicker-calendar"]')
+for calendar_days in calendar.find_elements_by_tag_name('a'):
+    if calendar_days.text == str(day):
+        print("days matched")
+        print(day)
+        calendar_days.click()
+
+continue_popup_button = driver.find_element_by_id('btnContinue')
+continue_popup_button.click()
