@@ -12,11 +12,11 @@ Time Slots:
 
 #Listed in order of priority for each day -- first is highest priority
 SLOT_PREFERENCES = {
-    'Mon': [],
-    'Tues': [],
-    'Wed': [],
-    'Thurs': [],
-    'Fri': [],
-    'Sat': [],
-    'Sun': [],
+    'Mon': [0,1,2],
+    'Tues': [2,3],
+    'Wed': [4,5],
+    'Thurs': [5,6],
+    'Fri': [1,4],
+    'Sat': [5],
+    'Sun': [5],
 }
