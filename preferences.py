@@ -1,7 +1,7 @@
 """
-TIME SLOTS:
+Time Slots:
 0 -- 7:00 - 8:15 AM
-1 -- 8:48 - 10:00 AM
+1 -- 8:45 - 10:00 AM
 2 -- 10:30 - 11:45 AM
 3 -- 12:15 - 1:30 PM
 4 -- 2:30 - 3:45 PM
@@ -9,6 +9,8 @@ TIME SLOTS:
 6 -- 6:00 - 7:15 PM
 7 -- 7:45 - 9:00 PM
 """
+
+#Listed in order of priority for each day -- first is highest priority
 SLOT_PREFERENCES = {
     'Mon': [],
     'Tues': [],
