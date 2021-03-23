@@ -49,16 +49,17 @@ def navigate_to_available_slots():
 
     #click on Fitness Reservations box
     driver.implicitly_wait(3)
+    time.sleep(1)
     fitness_reservation_box = driver.find_element_by_xpath('//div[@title="Fitness Reservations"]')
     fitness_reservation_box.click()
 
     #directed to new page with a single Fitness Reservations box -- need to click time as well
     driver.implicitly_wait(3)
+    time.sleep(1)
     fitness_reservation_box = driver.find_element_by_xpath('//div[@title="Fitness Reservations"]')
     fitness_reservation_box.click()
 
     #select the next day on the popup
-    driver.implicitly_wait(10)
     #every once and a while takes too long to load and next thing isn't found
     time.sleep(2)
     calendar_img = driver.find_element_by_xpath('//img[@class="ui-datepicker-trigger"]')
@@ -98,7 +99,7 @@ def navigate_to_available_slots():
     list_view = driver.find_element_by_id('ctl00_pageContentHolder_OLSLabel2')
     list_view.click()
 
-SLOT_TO_TIME = [['07:00 AM','08:45 AM','10:30','12:15','02:30 PM','04:15 PM','06:00 PM','07:45 PM'], ['10:15', '12:00', '02:00 PM', '03:45 PM', '05:30 PM']]
+SLOT_TO_TIME = [['07:00 AM','08:45 AM','10:30 AM','12:15 PM','02:30 PM','04:15 PM','06:00 PM','07:45 PM'], ['10:15 AM', '12:00 PM', '02:00 PM', '03:45 PM', '05:30 PM']]
 WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 
 def get_preferences(week_day):
@@ -127,7 +128,7 @@ def next_page_exists():
     """
     Checks whether or not current page is equal to the last page
     """
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(15)
     page_number_span = driver.find_element_by_id('PageNumber')
     page_number_text = page_number_span.find_element_by_tag_name('span').text
     left = page_number_text[5:page_number_text.find('o')-1]
@@ -138,7 +139,7 @@ def prev_page_exists():
     """
     Checks whether or not previous page exists
     """
-    driver.implicitly_wait(3)
+    driver.implicitly_wait(15)
     page_number_span = driver.find_element_by_id('PageNumber')
     page_number_text = page_number_span.find_element_by_tag_name('span').text
     left = page_number_text[5:page_number_text.find('o')-1]
@@ -152,19 +153,22 @@ def search_current_page(slot_time):
     for slot_element in available_slot_list:
         if slot_element.get_attribute('class') not in  {'DgText', 'DgTextAlt'}:
             continue
-        print(slot_element.get_attribute('class'))
-
+        #print(slot_element.get_attribute('class'))
+        current_row = slot_element.find_elements_by_tag_name('td')
+        if current_row[0].text == slot_time:
+            return current_row[-1].find_element_by_tag_name('a')
         # print(slot_element.find_element_by_xpath('/td').text)
-    pass
-
-
+    return None
 
 def find_slot(slot_time):
     driver.implicitly_wait(5)
     search_current_page(slot_time)
     while next_page_exists():
-        search_current_page(slot_time)
+        result = search_current_page(slot_time)
+        if result != None:
+            return result
         get_next_page()
+    return None
 
 def return_to_start():
     """
@@ -178,18 +182,33 @@ def search_available_slots(desired_slots):
     for slot_time in desired_slots:
         print("attempting to find:", slot_time)
         #attempt to find slot
-        find_slot(slot_time)
+        result = find_slot(slot_time)
+        if result != None:
+            print("Found desired slot!!")
+            result.click()
+            schedule_slot()
+            return True
         #if not, navigate back to first page to try again for next slot
         return_to_start()
-    print("No slots could be found!")
+    return False
 
+def schedule_slot():
+    time.sleep(2)
+    continue_button = driver.find_element_by_id('btnContinue')
+    continue_button.click()
 
+    driver.implicitly_wait(3)
+    accept_waiver = driver.find_element_by_id('btnAcceptWaiver')
+    accept_waiver.click()
+    
 def main():
     navigate_to_available_slots()
     reservation_day = get_reservation_date()[2]
     desired_slots = get_preferences(reservation_day)
     print("Today's preferences are: ", desired_slots)
-    search_available_slots(desired_slots)
+    if not search_available_slots(desired_slots):
+        print("No slots found...")
+
 
 if __name__ == '__main__':
     main()
