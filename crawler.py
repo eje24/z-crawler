@@ -4,7 +4,6 @@ import datetime
 import os
 
 from preferences import SLOT_PREFERENCES
-from selenium import webdriver
 from datetime import timedelta
 from os.path import join, dirname
 from dotenv import load_dotenv
@@ -13,7 +12,7 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 
-driver = webdriver.Chrome('./chromedriver')
+driver = webdriver.Chrome(os.environ['DRIVER_PATH'])
 
 def get_reservation_date():
     reservation_day = datetime.date.today() + timedelta(days=1)
