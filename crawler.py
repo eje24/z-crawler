@@ -16,7 +16,7 @@ load_dotenv(dotenv_path)
 driver = webdriver.Chrome(os.environ['DRIVER_PATH'])
 
 def get_reservation_date():
-    reservation_day = datetime.date.today() + timedelta(days=1)
+    reservation_day = datetime.date.today() + timedelta(days=2)
     day = reservation_day.day
     [day_of_week, month] = reservation_day.ctime().split()[:2]
     return (month, day, day_of_week)
@@ -193,7 +193,7 @@ def search_available_slots(desired_slots):
     return False
 
 def sign_out():
-    driver.implicitly_wait(3)
+    time.sleep(8)
     sign_out = driver.find_element_by_id('ctl00_welcomeCnt_ancSignOut')
     sign_out.click()
 
@@ -206,6 +206,9 @@ def schedule_slot():
     accept_waiver = driver.find_element_by_id('btnAcceptWaiver')
     accept_waiver.click()
 
+    time.sleep(2)
+    continue_to_cart = driver.find_element_by_id('ctl00_pageContentHolder_btnContinueCart')
+    continue_to_cart.click()
     sign_out()
     
 
@@ -215,13 +218,12 @@ def reserve_for(user):
     desired_slots = get_preferences(user, reservation_day)
     if not search_available_slots(desired_slots):
         print("No slots found for", user)
-        time.sleep(15)
         sign_out()
 
 def main():
     for user in PREFERENCES:
         reserve_for(user)
-    driver.close()
+    driver.quit()
     
 
 
