@@ -12,12 +12,99 @@ Weekdays                    Weekends
 """
 
 #Listed in order of priority for each day -- first is highest priority
-SLOT_PREFERENCES = {
-    'Mon': [0,1,2,3,4,5],
-    'Tue': [0,1,2,3,4,5],
-    'Wed': [0,1,2,3,4,5],
-    'Thu': [0,1,2,3,4,5],
-    'Fri': [0,1,2,3,4,5],
-    'Sat': [0,1,2,3,4],
-    'Sun': [0,1,2,3,4],
+PREFERENCES = {
+    "Ben": {
+        "username": "benjaminwu",
+        "password": "f@JN#7-zxHaqhg",
+        "SLOT_PREFERENCES": {
+            'Mon': [7],
+            'Tue': [],
+            'Wed': [7],
+            'Thu': [],
+            'Fri': [7],
+            'Sat': [],
+            'Sun': [2, 3],
+        }
+    }, 
+    "Albert": {
+        "username": "axing",
+        "password": "5Z9BY7A4f$bX7t",
+        "SLOT_PREFERENCES": {
+            'Mon': [7],
+            'Tue': [],
+            'Wed': [7],
+            'Thu': [],
+            'Fri': [7],
+            'Sat': [],
+            'Sun': [],
+        }
+    },
+    "Ezra": {
+        "username": "189823EErives",
+        "password": "12345",
+        "SLOT_PREFERENCES": {
+            'Mon': [7],
+            'Tue': [],
+            'Wed': [7],
+            'Thu': [],
+            'Fri': [7],
+            'Sat': [],
+            'Sun': [],
+        }
+    },
+    "Jerry": {
+        "username": "JerryZhao16",
+        "password": "benishot",
+        "SLOT_PREFERENCES": {
+            'Mon': [7],
+            'Tue': [],
+            'Wed': [7],
+            'Thu': [],
+            'Fri': [7],
+            'Sat': [],
+            'Sun': [],
+        }
+    }
 }
+
+"""
+"Albert": {
+        "username": "axing",
+        "password": "5Z9BY7A4f$bX7t",
+        "SLOT_PREFERENCES": {
+            'Mon': [7],
+            'Tue': [],
+            'Wed': [7],
+            'Thu': [],
+            'Fri': [7],
+            'Sat': [],
+            'Sun': [],
+        }
+    },
+    "Ezra": {
+        "username": "189823EErives",
+        "password": "12345",
+        "SLOT_PREFERENCES": {
+            'Mon': [7],
+            'Tue': [],
+            'Wed': [7],
+            'Thu': [],
+            'Fri': [7],
+            'Sat': [],
+            'Sun': [],
+        }
+    },
+    "Jerry": {
+        "username": "JerryZhao16",
+        "password": "benishot",
+        "SLOT_PREFERENCES": {
+            'Mon': [7],
+            'Tue': [],
+            'Wed': [7],
+            'Thu': [],
+            'Fri': [7],
+            'Sat': [],
+            'Sun': [2, 3],
+        }
+    }
+"""

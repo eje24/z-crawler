@@ -2,3 +2,4 @@ chromedriver
 .env
 chromedriver.exe
 run_crawler.bat
+preferences.py

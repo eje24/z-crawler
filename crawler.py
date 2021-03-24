@@ -2,8 +2,9 @@ from selenium import webdriver
 import time
 import datetime
 import os
+import json
 
-from preferences import SLOT_PREFERENCES
+from preferences import PREFERENCES
 from datetime import timedelta
 from os.path import join, dirname
 from dotenv import load_dotenv
@@ -20,7 +21,7 @@ def get_reservation_date():
     [day_of_week, month] = reservation_day.ctime().split()[:2]
     return (month, day, day_of_week)
 
-def navigate_to_available_slots():
+def navigate_to_available_slots(user):
     # first load into mit rec sports
     driver.get('http://www.mitrecsports.com/')
 
@@ -33,8 +34,8 @@ def navigate_to_available_slots():
     #enter login information
     username_input = driver.find_element_by_id('ctl00_pageContentHolder_loginControl_UserName')
     password_input = driver.find_element_by_id('ctl00_pageContentHolder_loginControl_Password')
-    username = os.environ['ACC_USERNAME']
-    password = os.environ['ACC_PASSWORD']
+    username = PREFERENCES[user]["username"]
+    password = PREFERENCES[user]["password"]
     username_input.send_keys(username)
     password_input.send_keys(password)
     driver.implicitly_wait(3)
@@ -101,12 +102,12 @@ def navigate_to_available_slots():
 SLOT_TO_TIME = [['07:00 AM','08:45 AM','10:30 AM','12:15 PM','02:30 PM','04:15 PM','06:00 PM','07:45 PM'], ['10:15 AM', '12:00 PM', '02:00 PM', '03:45 PM', '05:30 PM']]
 WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 
-def get_preferences(week_day):
+def get_preferences(user, week_day):
     """
     Returns timeslots associated with current weekday, in order of priority
     """
     weekend = 0 if week_day in WEEK_DAYS else 1
-    slot_list = list(map(lambda day: SLOT_TO_TIME[weekend][day], SLOT_PREFERENCES[week_day]))
+    slot_list = list(map(lambda day: SLOT_TO_TIME[weekend][day], PREFERENCES[user]["SLOT_PREFERENCES"][week_day]))
     return slot_list
 
 def get_next_page():
@@ -191,6 +192,11 @@ def search_available_slots(desired_slots):
         return_to_start()
     return False
 
+def sign_out():
+    driver.implicitly_wait(3)
+    sign_out = driver.find_element_by_id('ctl00_welcomeCnt_ancSignOut')
+    sign_out.click()
+
 def schedule_slot():
     time.sleep(2)
     continue_button = driver.find_element_by_id('btnContinue')
@@ -199,14 +205,24 @@ def schedule_slot():
     driver.implicitly_wait(3)
     accept_waiver = driver.find_element_by_id('btnAcceptWaiver')
     accept_waiver.click()
+
+    sign_out()
     
-def main():
-    navigate_to_available_slots()
+
+def reserve_for(user):
+    navigate_to_available_slots(user)
     reservation_day = get_reservation_date()[2]
-    desired_slots = get_preferences(reservation_day)
-    print("Today's preferences are: ", desired_slots)
+    desired_slots = get_preferences(user, reservation_day)
     if not search_available_slots(desired_slots):
-        print("No slots found...")
+        print("No slots found for", user)
+        time.sleep(15)
+        sign_out()
+
+def main():
+    for user in PREFERENCES:
+        reserve_for(user)
+    driver.close()
+    
 
 
 if __name__ == '__main__':
