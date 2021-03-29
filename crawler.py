@@ -15,6 +15,9 @@ load_dotenv(dotenv_path)
 
 driver = webdriver.Chrome(os.environ['DRIVER_PATH'])
 
+SHORT_WAIT = 2 
+LONG_WAIT = 20
+
 def get_reservation_date():
     reservation_day = datetime.date.today() + timedelta(days=2)
     day = reservation_day.day
@@ -86,7 +89,7 @@ def navigate_to_available_slots(user):
     continue_popup_button.click()
 
     # access available reservation slots 
-    time.sleep(5)
+    time.sleep(LONG_WAIT)
     select_all = driver.find_element_by_id('ancSchSelectAll')
     select_all.click()
 
@@ -161,7 +164,7 @@ def search_current_page(slot_time):
     return None
 
 def find_slot(slot_time):
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(15)
     search_current_page(slot_time)
     while next_page_exists():
         result = search_current_page(slot_time)
@@ -179,6 +182,7 @@ def return_to_start():
     
 
 def search_available_slots(desired_slots):
+    time.sleep(LONG_WAIT)
     for slot_time in desired_slots:
         print("attempting to find:", slot_time)
         #attempt to find slot
@@ -193,12 +197,12 @@ def search_available_slots(desired_slots):
     return False
 
 def sign_out():
-    time.sleep(8)
+    time.sleep(LONG_WAIT)
     sign_out = driver.find_element_by_id('ctl00_welcomeCnt_ancSignOut')
     sign_out.click()
 
 def schedule_slot():
-    time.sleep(2)
+    time.sleep(SHORT_WAIT)
     continue_button = driver.find_element_by_id('btnContinue')
     continue_button.click()
 
@@ -206,7 +210,7 @@ def schedule_slot():
     accept_waiver = driver.find_element_by_id('btnAcceptWaiver')
     accept_waiver.click()
 
-    time.sleep(2)
+    time.sleep(SHORT_WAIT)
     continue_to_cart = driver.find_element_by_id('ctl00_pageContentHolder_btnContinueCart')
     continue_to_cart.click()
     sign_out()
@@ -222,10 +226,19 @@ def reserve_for(user):
 
 def main():
     for user in PREFERENCES:
-        reserve_for(user)
+        for iter in range(5):
+            try:
+                reserve_for(user)
+            except Exception as str_error:
+                print("there was an error reserving for", user)
+                print(str_error)
+                sign_out()
+            else:
+                break
     driver.quit()
     
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+    reserve_for("Jerry")
