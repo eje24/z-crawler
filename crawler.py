@@ -3,6 +3,12 @@ import time
 import datetime
 import os
 import json
+import traceback
+
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 from preferences import PREFERENCES
 from datetime import timedelta
@@ -17,26 +23,33 @@ driver = webdriver.Chrome(os.environ['DRIVER_PATH'])
 
 SHORT_WAIT = 2 
 LONG_WAIT = 20
+TIMEOUT = 5
 
 def get_reservation_date():
-    reservation_day = datetime.date.today() + timedelta(days=2)
+    reservation_day = datetime.date.today() + timedelta(days=1)
     day = reservation_day.day
     [day_of_week, month] = reservation_day.ctime().split()[:2]
     return (month, day, day_of_week)
 
+def safe_element_find(id, type):
+    try:
+        element_present = EC.presence_of_element_located((getattr(By, type), id))
+        WebDriverWait(driver, TIMEOUT).until(element_present)
+    except TimeoutException:
+        print("Timed out waiting for page to load")
+    return element_present
+
 def navigate_to_available_slots(user):
     # first load into mit rec sports
     driver.get('http://www.mitrecsports.com/')
-
-    driver.implicitly_wait(5)
-
     #click login button
+    driver.implicitly_wait(5)
     login_page_link = driver.find_element_by_id('menu-item-647').find_element_by_tag_name('a')
     login_page_link.click()
 
     #enter login information
-    username_input = driver.find_element_by_id('ctl00_pageContentHolder_loginControl_UserName')
-    password_input = driver.find_element_by_id('ctl00_pageContentHolder_loginControl_Password')
+    username_input = driver.find_element_by_id('ctl00_pageContentHolder_loginControl_UserName', 'ID')
+    password_input = driver.find_element_by_id('ctl00_pageContentHolder_loginControl_Password', 'ID')
     username = PREFERENCES[user]["username"]
     password = PREFERENCES[user]["password"]
     username_input.send_keys(username)
@@ -52,25 +65,25 @@ def navigate_to_available_slots(user):
 
     #click on Fitness Reservations box
     driver.implicitly_wait(3)
-    time.sleep(1)
+    time.sleep(SHORT_WAIT)
     fitness_reservation_box = driver.find_element_by_xpath('//div[@title="Fitness Reservations"]')
     fitness_reservation_box.click()
 
     #directed to new page with a single Fitness Reservations box -- need to click time as well
     driver.implicitly_wait(3)
-    time.sleep(1)
+    time.sleep(SHORT_WAIT)
     fitness_reservation_box = driver.find_element_by_xpath('//div[@title="Fitness Reservations"]')
     fitness_reservation_box.click()
 
     #select the next day on the popup
     #every once and a while takes too long to load and next thing isn't found
-    time.sleep(2)
+    time.sleep(SHORT_WAIT)
     calendar_img = driver.find_element_by_xpath('//img[@class="ui-datepicker-trigger"]')
     calendar_img.click()
 
     (month, day, day_of_week) = get_reservation_date()
 
-
+    time.sleep(SHORT_WAIT)
     month_dropdown = driver.find_element_by_xpath('//select[@class="ui-datepicker-month"]')
     month_dropdown.click()
 
@@ -81,6 +94,9 @@ def navigate_to_available_slots(user):
     month_dropdown.click()
 
     calendar = driver.find_element_by_xpath('//table[@class="ui-datepicker-calendar"]')
+    calendar.click()
+    
+    time.sleep(SHORT_WAIT)
     for calendar_days in calendar.find_elements_by_tag_name('a'):
         if calendar_days.text == str(day):
             calendar_days.click()
@@ -89,7 +105,7 @@ def navigate_to_available_slots(user):
     continue_popup_button.click()
 
     # access available reservation slots 
-    time.sleep(LONG_WAIT)
+    time.sleep(SHORT_WAIT)
     select_all = driver.find_element_by_id('ancSchSelectAll')
     select_all.click()
 
@@ -150,6 +166,7 @@ def prev_page_exists():
 
 
 def search_current_page(slot_time):
+    time.sleep(LONG_WAIT)
     slot_table_div = driver.find_element_by_id('schPageData')
     driver.implicitly_wait(5)
     available_slot_list = slot_table_div.find_elements_by_xpath('//tbody/tr')
@@ -188,7 +205,6 @@ def search_available_slots(desired_slots):
         #attempt to find slot
         result = find_slot(slot_time)
         if result != None:
-            print("Found desired slot!!")
             result.click()
             schedule_slot()
             return True
@@ -198,6 +214,8 @@ def search_available_slots(desired_slots):
 
 def sign_out():
     time.sleep(LONG_WAIT)
+    driver.get('https://hnd-p-ols.spectrumng.net/mit/Home.aspx')
+    driver.implicitly_wait(3)
     sign_out = driver.find_element_by_id('ctl00_welcomeCnt_ancSignOut')
     sign_out.click()
 
@@ -229,10 +247,12 @@ def main():
         for iter in range(5):
             try:
                 reserve_for(user)
-            except Exception as str_error:
-                print("there was an error reserving for", user)
-                print(str_error)
-                sign_out()
+            except:
+                with open("error_logs.txt", "a") as myfile:
+                    myfile.write("There was an error reserving for {0}. Time of error: {1}\n".format(user, str(datetime.datetime.now())))
+                    myfile.write(traceback.format_exc())
+                    myfile.write("\n\n")
+                    sign_out()
             else:
                 break
     driver.quit()
@@ -240,5 +260,4 @@ def main():
 
 
 if __name__ == '__main__':
-    #main()
-    reserve_for("Jerry")
+    main()

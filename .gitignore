@@ -3,3 +3,4 @@ chromedriver
 chromedriver.exe
 run_crawler.bat
 preferences.py
+error_logs.txt
