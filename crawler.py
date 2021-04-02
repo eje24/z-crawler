@@ -26,18 +26,10 @@ LONG_WAIT = 20
 TIMEOUT = 5
 
 def get_reservation_date():
-    reservation_day = datetime.date.today() + timedelta(days=1)
+    reservation_day = datetime.date.today() + timedelta(days=2)
     day = reservation_day.day
     [day_of_week, month] = reservation_day.ctime().split()[:2]
     return (month, day, day_of_week)
-
-def safe_element_find(id, type):
-    try:
-        element_present = EC.presence_of_element_located((getattr(By, type), id))
-        WebDriverWait(driver, TIMEOUT).until(element_present)
-    except TimeoutException:
-        print("Timed out waiting for page to load")
-    return element_present
 
 def navigate_to_available_slots(user):
     # first load into mit rec sports
